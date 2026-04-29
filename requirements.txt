@@ -1,2 +1,7 @@
 Flask==2.2.5
 Werkzeug==2.2.3
+
+use "python app.py" command in terminal to run this project then
+go on "http://127.0.0.1:5000" in your browser.Make sure you have Flask installed in your Python environment before running the command. You can install Flask using pip:
+```pip install Flask
+```
