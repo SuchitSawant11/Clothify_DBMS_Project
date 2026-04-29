@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ title or "Clothify" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+      body {
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+          background: #f8fafc;
+      }
+  </style>
+</head>
+
+<body class="bg-gray-100 pl-64">
+
+<!-- ▬▬▬▬▬ LEFT SIDEBAR ▬▬▬▬▬ -->
+<aside class="w-64 bg-gray-900 text-white min-h-screen flex flex-col shadow-xl fixed top-0 left-0">
+
+    <!-- Logo + Tagline -->
+    <div class="py-6 text-center border-b border-gray-700">
+        <div class="text-2xl font-bold flex items-center justify-center gap-2">
+            🛍️ <span>Clothify</span>
+        </div>
+        <p class="text-gray-300 text-sm mt-1 italic">
+            "Wear Confidence Daily"
+        </p>
+    </div>
+
+    <!-- MENU -->
+    <nav class="flex-1 px-6 py-6 space-y-4 text-lg">
+
+        <a href="/" class="block px-3 py-2 rounded-lg transition 
+           {% if request.path == '/' %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
+            🏠 Home
+        </a>
+
+        <a href="/inventory" class="block px-3 py-2 rounded-lg transition
+           {% if '/inventory' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
+            📦 Inventory
+        </a>
+
+        <a href="/categories" class="block px-3 py-2 rounded-lg transition
+           {% if '/categories' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
+            📁 Categories
+        </a>
+
+        <a href="/suppliers" class="block px-3 py-2 rounded-lg transition
+           {% if '/suppliers' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
+            🚚 Suppliers
+        </a>
+
+        <a href="/billing" class="block px-3 py-2 rounded-lg transition
+           {% if '/billing' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
+            🧾 Billing
+        </a>
+
+        <a href="/products/deleted" class="block px-3 py-2 rounded-lg transition
+           {% if '/deleted' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
+            🗑 Delete History
+        </a>
+
+        <a href="/products/updates" class="block px-3 py-2 rounded-lg transition
+           {% if '/updates' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
+            🔄 Update History
+        </a>
+    </nav>
+
+    <!-- LOGOUT BUTTON -->
+    <div class="px-6 py-6 border-t border-gray-700">
+        <a href="/logout"
+           class="w-full block text-center bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold">
+           Logout
+        </a>
+    </div>
+
+</aside>
+
+<!-- ▬▬▬▬▬ MAIN CONTENT AREA ▬▬▬▬▬ -->
+<main class="px-8 py-6">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="space-y-2 mb-4">
+          {% for cat,msg in messages %}
+            <div class="p-3 rounded {{ 'bg-green-100 text-green-800' if cat=='success' else 'bg-red-100 text-red-800' }}">
+                {{ msg }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+body{background:#f8f9fa}
+.card{border-radius:10px}
+/* 🔥 FIX GRID CARD STRETCHING */
+.grid {
+    align-items: start !important;
+    grid-auto-rows: min-content !important;
+}
