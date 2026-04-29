@@ -1,34 +1,36 @@
 {% extends "base.html" %}
+{% block page_title %}{{ 'Edit Supplier' if supplier else 'Add Supplier' }}{% endblock %}
 {% block content %}
 
-<h2 class="text-3xl font-bold mb-6">
-    {{ 'Edit Supplier' if supplier else 'Add Supplier' }}
-</h2>
+<div style="max-width:600px;">
+  <h2 style="font-size:1.4rem;font-weight:700;color:#1a1a2e;margin-bottom:20px;">
+    {{ '✏️ Edit Supplier' if supplier else '➕ Add Supplier' }}
+  </h2>
 
-<form method="POST" class="bg-white p-6 rounded-xl shadow-lg w-full max-w-xl">
-
-    <label class="block mb-2 font-semibold">Supplier Name</label>
-    <input type="text" name="name"
-           value="{{ supplier.name if supplier else '' }}"
-           required
-           class="w-full border px-4 py-2 rounded mb-4">
-
-    <label class="block mb-2 font-semibold">Contact</label>
-    <input type="text" name="contact"
-           value="{{ supplier.contact if supplier else '' }}"
-           class="w-full border px-4 py-2 rounded mb-4">
-
-    <label class="block mb-2 font-semibold">Address</label>
-    <textarea name="address"
-              class="w-full border px-4 py-2 rounded mb-4">{{ supplier.address if supplier else '' }}</textarea>
-
-    <button class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700">
-        Save
-    </button>
-
-    <a href="{{ url_for('suppliers_page') }}"
-       class="ml-4 text-gray-700 hover:underline">Cancel</a>
-
-</form>
-
+  <div class="card" style="padding:28px;">
+    <form method="POST">
+      <div style="margin-bottom:16px;">
+        <label class="form-label">Supplier Name *</label>
+        <input type="text" name="name" class="form-input" required
+               value="{{ supplier.name if supplier else '' }}" placeholder="e.g. Fashion Hub">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label class="form-label">Contact Number</label>
+        <input type="text" name="contact" class="form-input"
+               value="{{ supplier.contact if supplier else '' }}" placeholder="e.g. 9876543210">
+      </div>
+      <div style="margin-bottom:24px;">
+        <label class="form-label">Address</label>
+        <textarea name="address" class="form-input" rows="3"
+                  placeholder="City, State">{{ supplier.address if supplier else '' }}</textarea>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button type="submit" class="btn btn-accent">
+          {{ '💾 Update Supplier' if supplier else '✔ Save Supplier' }}
+        </button>
+        <a href="{{ url_for('suppliers_page') }}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

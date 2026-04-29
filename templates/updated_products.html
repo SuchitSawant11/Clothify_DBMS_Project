@@ -1,42 +1,40 @@
 {% extends "base.html" %}
+{% block page_title %}Update History{% endblock %}
 {% block content %}
 
-<h2 class="text-3xl font-bold mb-6 flex items-center gap-2">
-    🔄 Updated Products Log
-</h2>
-
-<div class="bg-white shadow-md rounded-lg overflow-hidden">
-    <table class="min-w-full text-left">
-        <thead class="bg-blue-100 text-gray-700 font-semibold">
-            <tr>
-                <th class="px-4 py-3">Product ID</th>
-                <th class="px-4 py-3">Field</th>
-                <th class="px-4 py-3">Old Value</th>
-                <th class="px-4 py-3">New Value</th>
-                <th class="px-4 py-3">Updated On</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for row in logs %}
-            <tr class="border-b hover:bg-gray-50 transition">
-                <td class="px-4 py-3">{{ row.product_id }}</td>
-                <td class="px-4 py-3 capitalize">
-                    {{ row.field_name }}
-                </td>
-                <td class="px-4 py-3">
-                    {{ row.old_value if row.old_value else '-' }}
-                </td>
-                <td class="px-4 py-3">
-                    {{ row.new_value if row.new_value else '-' }}
-                </td>
-                <td class="px-4 py-3">
-                    {{ row.updated_on }}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div style="margin-bottom:24px;">
+  <h2 style="font-size:1.5rem;font-weight:700;color:#1a1a2e;">🔄 Update History</h2>
+  <p style="font-size:.82rem;color:#888;margin-top:2px;">Field-level log of all product edits</p>
 </div>
 
+<div class="card">
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Product ID</th>
+          <th>Field Changed</th>
+          <th>Old Value</th>
+          <th>New Value</th>
+          <th>Updated On</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in logs %}
+        <tr>
+          <td style="color:#aaa;">#{{ row.product_id }}</td>
+          <td>
+            <span class="badge badge-green" style="text-transform:capitalize;">{{ row.field_name }}</span>
+          </td>
+          <td style="color:#991b1b;">{{ row.old_value or '—' }}</td>
+          <td style="color:#166534;font-weight:600;">{{ row.new_value or '—' }}</td>
+          <td style="font-size:.8rem;color:#888;">{{ row.updated_on[:19] if row.updated_on else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="text-align:center;padding:50px;color:#aaa;">No update logs yet. Edit a product to see changes here.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

@@ -5,97 +5,211 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{{ title or "Clothify" }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <style>
-      body {
-          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-          background: #f8fafc;
-      }
+    :root {
+      --brand: #1a1a2e;
+      --accent: #e8b86d;
+      --accent-dark: #c9973a;
+      --sidebar-w: 260px;
+      --bg: #f5f4f0;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: #1a1a2e; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0; width: var(--sidebar-w);
+      height: 100vh; background: var(--brand); display: flex;
+      flex-direction: column; z-index: 50; overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .sidebar-logo .logo-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.55rem; color: var(--accent); letter-spacing: .02em;
+    }
+    .sidebar-logo .logo-tag {
+      font-size: .72rem; color: rgba(255,255,255,.45); margin-top: 3px;
+      letter-spacing: .08em; text-transform: uppercase;
+    }
+    .sidebar nav { flex: 1; padding: 20px 16px; }
+    .nav-group-label {
+      font-size: .65rem; color: rgba(255,255,255,.3);
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: 14px 8px 6px;
+    }
+    .nav-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px;
+      color: rgba(255,255,255,.72); font-size: .88rem; font-weight: 500;
+      text-decoration: none; transition: background .15s, color .15s;
+      margin-bottom: 2px;
+    }
+    .nav-link:hover { background: rgba(255,255,255,.07); color: #fff; }
+    .nav-link.active { background: var(--accent); color: var(--brand); font-weight: 700; }
+    .nav-link .icon { font-size: 1rem; width: 22px; text-align: center; }
+    .sidebar-footer {
+      padding: 16px; border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .logout-btn {
+      display: block; width: 100%; text-align: center;
+      background: rgba(232,184,109,.15); color: var(--accent);
+      border: 1px solid rgba(232,184,109,.35); border-radius: 8px;
+      padding: 9px 16px; font-size: .88rem; font-weight: 600;
+      text-decoration: none; transition: background .15s;
+    }
+    .logout-btn:hover { background: var(--accent); color: var(--brand); }
+
+    /* ── MAIN ── */
+    .main-wrap { margin-left: var(--sidebar-w); min-height: 100vh; }
+    .main-topbar {
+      background: #fff; border-bottom: 1px solid #e8e5dc;
+      padding: 14px 32px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 40;
+    }
+    .topbar-title { font-size: 1.05rem; font-weight: 600; color: var(--brand); }
+    .topbar-user {
+      font-size: .82rem; color: #888;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .topbar-user .avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--accent); color: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .8rem;
+    }
+    .page-body { padding: 28px 32px; }
+
+    /* ── FLASH ── */
+    .flash-success { background:#dcfce7; color:#166534; border:1px solid #bbf7d0; padding:11px 16px; border-radius:8px; margin-bottom:14px; font-size:.88rem; }
+    .flash-danger  { background:#fee2e2; color:#991b1b; border:1px solid #fecaca; padding:11px 16px; border-radius:8px; margin-bottom:14px; font-size:.88rem; }
+    .flash-info    { background:#dbeafe; color:#1e40af; border:1px solid #bfdbfe; padding:11px 16px; border-radius:8px; margin-bottom:14px; font-size:.88rem; }
+
+    /* ── CARDS / TABLES ── */
+    .card { background:#fff; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
+    .card-header { padding:18px 24px; border-bottom:1px solid #f0ede5; display:flex; align-items:center; justify-content:space-between; }
+    .card-header h3 { font-size:1rem; font-weight:700; color:var(--brand); }
+    table { width:100%; border-collapse:collapse; }
+    thead tr { background:#faf9f6; }
+    th { padding:11px 16px; font-size:.76rem; text-transform:uppercase; letter-spacing:.06em; color:#888; font-weight:600; text-align:left; }
+    td { padding:12px 16px; font-size:.87rem; color:#374151; border-bottom:1px solid #f3f2ee; }
+    tbody tr:hover td { background:#faf9f6; }
+    tbody tr:last-child td { border-bottom:none; }
+
+    /* ── BUTTONS ── */
+    .btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:8px; font-size:.84rem; font-weight:600; cursor:pointer; text-decoration:none; transition:filter .15s, transform .1s; border:none; }
+    .btn:hover { filter:brightness(.93); transform:translateY(-1px); }
+    .btn-primary { background:var(--brand); color:#fff; }
+    .btn-accent  { background:var(--accent); color:var(--brand); }
+    .btn-danger  { background:#fee2e2; color:#991b1b; }
+    .btn-ghost   { background:transparent; color:var(--brand); border:1px solid #d1cdc3; }
+
+    /* ── BADGES ── */
+    .badge { display:inline-block; padding:2px 9px; border-radius:999px; font-size:.72rem; font-weight:600; }
+    .badge-green  { background:#dcfce7; color:#166534; }
+    .badge-yellow { background:#fef9c3; color:#854d0e; }
+    .badge-red    { background:#fee2e2; color:#991b1b; }
+
+    /* ── FORMS ── */
+    .form-label { display:block; font-size:.8rem; font-weight:600; color:#555; margin-bottom:5px; }
+    .form-input  { width:100%; border:1px solid #ddd8ce; border-radius:8px; padding:9px 12px; font-size:.875rem; font-family:inherit; outline:none; transition:border .15s; }
+    .form-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,184,109,.2); }
+    select.form-input { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; appearance:none; }
+
+    /* ── PRODUCT GRID ── */
+    .product-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:20px; }
+    .product-card { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.07); display:flex; flex-direction:column; transition:box-shadow .2s,transform .2s; }
+    .product-card:hover { box-shadow:0 8px 24px rgba(0,0,0,.13); transform:translateY(-3px); }
+    .product-card img { width:100%; height:200px; object-fit:cover; }
+    .product-card .pc-body { padding:14px; flex:1; display:flex; flex-direction:column; }
+    .product-card .pc-name { font-weight:700; font-size:.95rem; color:var(--brand); margin-bottom:4px; }
+    .product-card .pc-price { color:#16a34a; font-weight:700; font-size:1rem; }
+    .product-card .pc-meta { font-size:.76rem; color:#888; margin-top:2px; }
+    .product-card .pc-actions { margin-top:12px; }
+    .add-bill-btn { width:100%; padding:9px; background:var(--brand); color:#fff; border:none; border-radius:8px; font-size:.84rem; font-weight:600; cursor:pointer; transition:background .15s; }
+    .add-bill-btn:hover { background:#2d2d4a; }
+
+    /* ── TOAST ── */
+    #toast { position:fixed; bottom:24px; right:24px; background:#166534; color:#fff; padding:12px 20px; border-radius:10px; font-size:.875rem; box-shadow:0 4px 20px rgba(0,0,0,.2); z-index:9999; display:none; animation:slideUp .3s ease; }
+    @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
   </style>
 </head>
 
-<body class="bg-gray-100 pl-64">
+<body>
 
-<!-- ▬▬▬▬▬ LEFT SIDEBAR ▬▬▬▬▬ -->
-<aside class="w-64 bg-gray-900 text-white min-h-screen flex flex-col shadow-xl fixed top-0 left-0">
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">✦ Clothify</div>
+    <div class="logo-tag">Store Management</div>
+  </div>
 
-    <!-- Logo + Tagline -->
-    <div class="py-6 text-center border-b border-gray-700">
-        <div class="text-2xl font-bold flex items-center justify-center gap-2">
-            🛍️ <span>Clothify</span>
-        </div>
-        <p class="text-gray-300 text-sm mt-1 italic">
-            "Wear Confidence Daily"
-        </p>
+  <nav>
+    <div class="nav-group-label">Main</div>
+    <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
+      <span class="icon">🏠</span> Home
+    </a>
+    <a href="/inventory" class="nav-link {% if '/inventory' in request.path %}active{% endif %}">
+      <span class="icon">📦</span> Inventory
+    </a>
+    <a href="/billing" class="nav-link {% if '/billing' in request.path %}active{% endif %}">
+      <span class="icon">🧾</span> Billing
+    </a>
+
+    <div class="nav-group-label">Manage</div>
+    <a href="/categories" class="nav-link {% if '/categories' in request.path %}active{% endif %}">
+      <span class="icon">📁</span> Categories
+    </a>
+    <a href="/suppliers" class="nav-link {% if '/suppliers' in request.path %}active{% endif %}">
+      <span class="icon">🚚</span> Suppliers
+    </a>
+
+    <div class="nav-group-label">Logs</div>
+    <a href="/products/deleted" class="nav-link {% if '/deleted' in request.path %}active{% endif %}">
+      <span class="icon">🗑️</span> Delete History
+    </a>
+    <a href="/products/updates" class="nav-link {% if '/updates' in request.path %}active{% endif %}">
+      <span class="icon">🔄</span> Update History
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    {% if session_user %}
+    <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:10px;padding:0 4px;">
+      Logged in as <strong style="color:rgba(255,255,255,.7)">{{ session_user.username }}</strong>
     </div>
-
-    <!-- MENU -->
-    <nav class="flex-1 px-6 py-6 space-y-4 text-lg">
-
-        <a href="/" class="block px-3 py-2 rounded-lg transition 
-           {% if request.path == '/' %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
-            🏠 Home
-        </a>
-
-        <a href="/inventory" class="block px-3 py-2 rounded-lg transition
-           {% if '/inventory' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
-            📦 Inventory
-        </a>
-
-        <a href="/categories" class="block px-3 py-2 rounded-lg transition
-           {% if '/categories' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
-            📁 Categories
-        </a>
-
-        <a href="/suppliers" class="block px-3 py-2 rounded-lg transition
-           {% if '/suppliers' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
-            🚚 Suppliers
-        </a>
-
-        <a href="/billing" class="block px-3 py-2 rounded-lg transition
-           {% if '/billing' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
-            🧾 Billing
-        </a>
-
-        <a href="/products/deleted" class="block px-3 py-2 rounded-lg transition
-           {% if '/deleted' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
-            🗑 Delete History
-        </a>
-
-        <a href="/products/updates" class="block px-3 py-2 rounded-lg transition
-           {% if '/updates' in request.path %} bg-blue-600 text-white {% else %} hover:bg-gray-700 {% endif %}">
-            🔄 Update History
-        </a>
-    </nav>
-
-    <!-- LOGOUT BUTTON -->
-    <div class="px-6 py-6 border-t border-gray-700">
-        <a href="/logout"
-           class="w-full block text-center bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold">
-           Logout
-        </a>
-    </div>
-
+    {% endif %}
+    <a href="/logout" class="logout-btn">⏻ Logout</a>
+  </div>
 </aside>
 
-<!-- ▬▬▬▬▬ MAIN CONTENT AREA ▬▬▬▬▬ -->
-<main class="px-8 py-6">
+<!-- ── MAIN ── -->
+<div class="main-wrap">
+  <div class="main-topbar">
+    <span class="topbar-title">{% block page_title %}Clothify{% endblock %}</span>
+    {% if session_user %}
+    <div class="topbar-user">
+      <div class="avatar">{{ session_user.username[0]|upper }}</div>
+      {{ session_user.username }}
+    </div>
+    {% endif %}
+  </div>
 
+  <div class="page-body">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="space-y-2 mb-4">
-          {% for cat,msg in messages %}
-            <div class="p-3 rounded {{ 'bg-green-100 text-green-800' if cat=='success' else 'bg-red-100 text-red-800' }}">
-                {{ msg }}
-            </div>
-          {% endfor %}
-        </div>
+        {% for cat, msg in messages %}
+          <div class="flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
       {% endif %}
     {% endwith %}
 
     {% block content %}{% endblock %}
-
-</main>
+  </div>
+</div>
 
 </body>
 </html>

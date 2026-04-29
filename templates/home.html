@@ -1,95 +1,85 @@
 {% extends "base.html" %}
+{% block page_title %}Products{% endblock %}
 {% block content %}
 
-<div class="flex items-center justify-between mb-6">
-    <h2 class="text-3xl font-bold text-gray-800">🛍️ Products Available</h2>
+<!-- Header bar -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <div>
+    <h2 style="font-size:1.5rem;font-weight:700;color:#1a1a2e;">All Products</h2>
+    <p style="font-size:.82rem;color:#888;margin-top:2px;">{{ products|length }} item{% if products|length != 1 %}s{% endif %} in store</p>
+  </div>
 
-    <form method="GET" action="/" class="flex items-center space-x-2">
-        <input 
-            type="text"
-            name="q"
-            value="{{ q }}"
-            placeholder="Search products..."
-            class="px-4 py-2 border rounded-lg w-64 focus:ring-2 focus:ring-blue-500 outline-none"
-        >
-        <button 
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-            Search
-        </button>
-    </form>
+  <form method="GET" action="/" style="display:flex;gap:8px;align-items:center;">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search by name or brand…"
+           class="form-input" style="width:260px;">
+    <button type="submit" class="btn btn-primary">Search</button>
+    {% if q %}<a href="/" class="btn btn-ghost">Clear</a>{% endif %}
+  </form>
 </div>
+
+<!-- Cart indicator -->
+{% set cart_count = session.get('bill_items', [])|length %}
+{% if cart_count > 0 %}
+<div style="background:#fef9c3;border:1px solid #fde68a;border-radius:10px;padding:10px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+  <span style="font-size:.87rem;color:#854d0e;">🛒 <strong>{{ cart_count }}</strong> item(s) in your bill cart</span>
+  <a href="/billing" class="btn btn-accent" style="font-size:.8rem;padding:6px 14px;">View Bill →</a>
+</div>
+{% endif %}
 
 <!-- Product Grid -->
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
-
-    {% for p in products %}
-    <div class="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition flex flex-col">
-
-        <!-- Product Image -->
-        <img 
-            src="{{ p.image_url if p.image_url else '/static/images/default_product.jpg' }}"
-            class="w-full h-48 object-cover"
-            alt="{{ p.name }}"
-        >
-
-        <div class="p-4 flex flex-col flex-1">
-            <h3 class="text-xl font-semibold text-gray-900">{{ p.name }}</h3>
-
-            <!-- Price & Category -->
-            <p class="text-lg text-green-600 font-semibold">₹{{ p.price }}</p>
-            <p class="text-sm text-gray-500">
-                {{ p.category if p.category else 'No Category' }}
-            </p>
-
-            <!-- Brand & Colour -->
-            <p class="text-sm text-gray-600">
-                <span class="font-semibold">Brand:</span> {{ p.brand or 'N/A' }}
-            </p>
-            <p class="text-sm text-gray-600">
-                <span class="font-semibold">Colour:</span> {{ p.colour or 'N/A' }}
-            </p>
-
-            <!-- Buttons -->
-            <div class="mt-auto">
-
-                <!-- Add to Bill (AJAX) -->
-                <button 
-                    onclick="addToBill({{ p.id }})"
-                    class="bg-blue-800 text-white px-4 py-2 w-full rounded-lg text-sm hover:bg-blue-900 transition font-semibold">
-                    Add to Bill
-                </button>
-
-            </div>
-        </div>
+{% if products %}
+<div class="product-grid">
+  {% for p in products %}
+  <div class="product-card">
+    <img src="{{ p.image_url if p.image_url else '/static/images/default_product.jpg' }}"
+         alt="{{ p.name }}" onerror="this.src='/static/images/default_product.jpg'">
+    <div class="pc-body">
+      <div class="pc-name">{{ p.name }}</div>
+      <div class="pc-price">₹{{ "%.0f"|format(p.price) }}</div>
+      <div class="pc-meta">{{ p.category or 'Uncategorized' }}</div>
+      <div class="pc-meta" style="margin-top:4px;">
+        {% if p.brand %}<span style="background:#f0ede5;padding:2px 7px;border-radius:4px;">{{ p.brand }}</span>{% endif %}
+        {% if p.colour %}<span style="background:#f0ede5;padding:2px 7px;border-radius:4px;margin-left:4px;">{{ p.colour }}</span>{% endif %}
+      </div>
+      <div style="margin-top:6px;">
+        {% if p.quantity > 10 %}
+          <span class="badge badge-green">{{ p.quantity }} in stock</span>
+        {% elif p.quantity > 0 %}
+          <span class="badge badge-yellow">Only {{ p.quantity }} left</span>
+        {% else %}
+          <span class="badge badge-red">Out of stock</span>
+        {% endif %}
+      </div>
+      <div class="pc-actions">
+        <button class="add-bill-btn" onclick="addToBill({{ p.id }})">
+          + Add to Bill
+        </button>
+      </div>
     </div>
-    {% endfor %}
-
+  </div>
+  {% endfor %}
 </div>
-
-<!-- Success Toast Popup -->
-<div id="toast"
-    class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg text-sm">
-    Added to bill ✔
+{% else %}
+<div style="text-align:center;padding:80px 20px;color:#aaa;">
+  <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
+  <p style="font-size:1rem;">No products found{% if q %} for "<strong>{{ q }}</strong>"{% endif %}.</p>
+  {% if q %}<a href="/" class="btn btn-ghost" style="margin-top:14px;">Show all products</a>{% endif %}
 </div>
+{% endif %}
+
+<!-- Toast -->
+<div id="toast">✔ Added to bill</div>
 
 <script>
 function addToBill(pid) {
-    fetch(`/bill/add/${pid}`)
-        .then(res => {
-            showToast();
-        })
-        .catch(err => console.error(err));
+  fetch('/bill/add/' + pid)
+    .then(() => showToast())
+    .catch(err => console.error(err));
 }
-
-// Show success toast for 1.5 seconds
 function showToast() {
-    const t = document.getElementById("toast");
-    t.classList.remove("hidden");
-
-    setTimeout(() => {
-        t.classList.add("hidden");
-    }, 1500);
+  const t = document.getElementById('toast');
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 1800);
 }
 </script>
-
 {% endblock %}

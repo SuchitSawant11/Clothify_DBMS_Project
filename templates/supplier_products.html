@@ -1,42 +1,44 @@
 {% extends "base.html" %}
+{% block page_title %}{{ supplier.name }} – Products{% endblock %}
 {% block content %}
 
-<h2 class="text-3xl font-bold mb-6">🧾 Products Supplied by {{ supplier.name }}</h2>
-
-<a href="{{ url_for('suppliers_page') }}"
-   class="text-blue-600 underline mb-4 inline-block">← Back to Suppliers</a>
-
-{% if products|length == 0 %}
-    <p class="text-gray-500 text-lg">No products linked to this supplier.</p>
-{% else %}
-
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
-    {% for p in products %}
-    <div class="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition">
-
-        <img src="{{ p.image_url or '/static/images/default_product.jpg' }}"
-             class="w-full h-48 object-cover">
-
-        <div class="p-4">
-            <h3 class="text-xl font-semibold">{{ p.name }}</h3>
-            <p class="text-green-600 font-semibold">₹{{ p.price }}</p>
-            <p class="text-sm text-gray-500">{{ p.category or 'No Category' }}</p>
-            <p class="text-sm text-gray-500">Brand: {{ p.brand or 'N/A' }}</p>
-            <p class="text-sm text-gray-500">Colour: {{ p.colour or 'N/A' }}</p>
-
-            <div class="mt-4 flex justify-between">
-                <a href="{{ url_for('bill_add', pid=p.id) }}"
-                   class="bg-blue-700 text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-900">
-                    Add to Bill
-                </a>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-
+<div style="margin-bottom:20px;">
+  <a href="{{ url_for('suppliers_page') }}" style="color:#888;font-size:.83rem;text-decoration:none;">← Back to Suppliers</a>
+  <h2 style="font-size:1.4rem;font-weight:700;color:#1a1a2e;margin-top:6px;">
+    🚚 {{ supplier.name }} — Products
+  </h2>
+  <p style="font-size:.82rem;color:#888;">{{ products|length }} product(s) from this supplier</p>
 </div>
 
+{% if products %}
+<div class="product-grid">
+  {% for p in products %}
+  <div class="product-card">
+    <img src="{{ p.image_url if p.image_url else '/static/images/default_product.jpg' }}"
+         alt="{{ p.name }}" onerror="this.src='/static/images/default_product.jpg'">
+    <div class="pc-body">
+      <div class="pc-name">{{ p.name }}</div>
+      <div class="pc-price">₹{{ "%.0f"|format(p.price) }}</div>
+      <div class="pc-meta">{{ p.category or 'Uncategorized' }}</div>
+      <div class="pc-meta" style="margin-top:4px;">
+        {% if p.brand %}<span style="background:#f0ede5;padding:2px 7px;border-radius:4px;">{{ p.brand }}</span>{% endif %}
+        {% if p.colour %}<span style="background:#f0ede5;padding:2px 7px;border-radius:4px;margin-left:4px;">{{ p.colour }}</span>{% endif %}
+      </div>
+      <div style="margin-top:6px;">
+        {% if p.quantity > 0 %}
+          <span class="badge badge-green">{{ p.quantity }} in stock</span>
+        {% else %}
+          <span class="badge badge-red">Out of stock</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div style="text-align:center;padding:60px;color:#aaa;">
+  <div style="font-size:2.5rem;margin-bottom:12px;">📦</div>
+  <p>No products from this supplier yet.</p>
+</div>
 {% endif %}
-
 {% endblock %}

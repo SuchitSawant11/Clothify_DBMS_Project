@@ -1,58 +1,50 @@
 {% extends "base.html" %}
+{% block page_title %}Suppliers{% endblock %}
 {% block content %}
 
-<h2 class="text-3xl font-bold mb-6">📦 Suppliers</h2>
-
-<div class="flex justify-end mb-4">
-    <a href="{{ url_for('supplier_add') }}"
-       class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-        ➕ Add Supplier
-    </a>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <div>
+    <h2 style="font-size:1.5rem;font-weight:700;color:#1a1a2e;">🚚 Suppliers</h2>
+    <p style="font-size:.82rem;color:#888;margin-top:2px;">{{ suppliers|length }} supplier(s) registered</p>
+  </div>
+  <a href="{{ url_for('supplier_add') }}" class="btn btn-accent">➕ Add Supplier</a>
 </div>
 
-<table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
-    <thead class="bg-gray-200">
+<div class="card">
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
         <tr>
-            <th class="px-4 py-3 text-left">Name</th>
-            <th class="px-4 py-3 text-left">Contact</th>
-            <th class="px-4 py-3 text-left">Address</th>
-            <th class="px-4 py-3 text-left">Date Added</th>
-            <th class="px-4 py-3 text-center">Actions</th>
+          <th>Name</th>
+          <th>Contact</th>
+          <th>Address</th>
+          <th>Date Added</th>
+          <th>Actions</th>
         </tr>
-    </thead>
-
-    <tbody>
+      </thead>
+      <tbody>
         {% for s in suppliers %}
-        <tr class="border-b hover:bg-gray-50">
-            <td class="px-4 py-3">{{ s.name }}</td>
-            <td class="px-4 py-3">{{ s.contact }}</td>
-            <td class="px-4 py-3">{{ s.address }}</td>
-            <td class="px-4 py-3">{{ s.date_added }}</td>
-
-            <td class="px-4 py-3 text-center">
-
-                <a href="{{ url_for('supplier_products', sid=s.id) }}"
-                   class="text-indigo-600 font-semibold hover:underline mr-3">
-                    View Products
-                </a>
-
-                <a href="{{ url_for('supplier_edit', id=s.id) }}"
-                   class="text-blue-600 font-semibold hover:underline mr-3">
-                    Edit
-                </a>
-
-                <form action="{{ url_for('supplier_delete', id=s.id) }}"
-                      method="POST" class="inline">
-                    <button class="text-red-600 font-semibold hover:underline"
-                            onclick="return confirm('Delete this supplier?')">
-                        Delete
-                    </button>
-                </form>
-
-            </td>
+        <tr>
+          <td style="font-weight:600;color:#1a1a2e;">{{ s.name }}</td>
+          <td>{{ s.contact or '—' }}</td>
+          <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ s.address or '—' }}</td>
+          <td style="color:#888;font-size:.82rem;">{{ s.date_added[:10] if s.date_added else '—' }}</td>
+          <td>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a href="{{ url_for('supplier_products', sid=s.id) }}" class="btn btn-primary" style="padding:5px 11px;font-size:.78rem;">📦 Products</a>
+              <a href="{{ url_for('supplier_edit', id=s.id) }}" class="btn btn-ghost" style="padding:5px 11px;font-size:.78rem;">✏️ Edit</a>
+              <form action="{{ url_for('supplier_delete', id=s.id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-danger" style="padding:5px 11px;font-size:.78rem;"
+                        onclick="return confirm('Delete this supplier?')">🗑 Delete</button>
+              </form>
+            </div>
+          </td>
         </tr>
+        {% else %}
+        <tr><td colspan="5" style="text-align:center;padding:40px;color:#aaa;">No suppliers yet. <a href="{{ url_for('supplier_add') }}" style="color:#e8b86d;">Add one!</a></td></tr>
         {% endfor %}
-    </tbody>
-</table>
-
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

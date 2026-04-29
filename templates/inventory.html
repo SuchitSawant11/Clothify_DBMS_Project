@@ -1,52 +1,65 @@
 {% extends "base.html" %}
+{% block page_title %}Inventory{% endblock %}
 {% block content %}
 
-<div class="flex items-center justify-between mb-4">
-  <h2 class="text-2xl font-semibold">Inventory</h2>
-  {% if session_user %}
-  <a href="{{ url_for('add_product') }}" class="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-4 py-2 rounded-lg shadow">
-    ➕ Add Product
-  </a>
-  {% endif %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <div>
+    <h2 style="font-size:1.5rem;font-weight:700;color:#1a1a2e;">📦 Inventory</h2>
+    <p style="font-size:.82rem;color:#888;margin-top:2px;">{{ products|length }} active product(s)</p>
+  </div>
+  <a href="{{ url_for('add_product') }}" class="btn btn-accent">➕ Add Product</a>
 </div>
 
-<div class="bg-white rounded-xl shadow overflow-x-auto">
-  <table class="min-w-full text-left">
-    <thead class="bg-gray-100">
-      <tr>
-        <th class="px-4 py-3">Product</th>
-        <th class="px-4 py-3">Category</th>
-        <th class="px-4 py-3">Qty</th>
-        <th class="px-4 py-3">Price</th>
-        <th class="px-4 py-3">Actions</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {% for p in products %}
-      {% if p.is_deleted == 0 %}
-      <tr class="border-b">
-        <td class="px-4 py-3">{{ p.name }}</td>
-        <td class="px-4 py-3">{{ p.category or '-' }}</td>
-        <td class="px-4 py-3">{{ p.quantity }}</td>
-        <td class="px-4 py-3">₹{{ p.price }}</td>
-
-        <td class="px-4 py-3">
-          <a href="{{ url_for('edit_product', pid=p.id) }}" class="text-blue-600 mr-3">Edit</a>
-
-          <form action="{{ url_for('delete_product', pid=p.id) }}" 
-                method="post" style="display:inline;" 
-                onsubmit="return confirm('Soft delete this product?')">
-
-            <button class="text-red-600">Delete</button>
-          </form>
-        </td>
-      </tr>
-      {% endif %}
-      {% endfor %}
-    </tbody>
-
-  </table>
+<div class="card">
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Product Name</th>
+          <th>Category</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td style="color:#aaa;">#{{ p.id }}</td>
+          <td style="font-weight:600;color:#1a1a2e;">{{ p.name }}</td>
+          <td>
+            {% if p.category %}
+              <span class="badge badge-green">{{ p.category }}</span>
+            {% else %}
+              <span style="color:#bbb;">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if p.quantity > 10 %}
+              <span class="badge badge-green">{{ p.quantity }}</span>
+            {% elif p.quantity > 0 %}
+              <span class="badge badge-yellow">{{ p.quantity }}</span>
+            {% else %}
+              <span class="badge badge-red">0</span>
+            {% endif %}
+          </td>
+          <td style="font-weight:600;">₹{{ "%.2f"|format(p.price) }}</td>
+          <td>
+            <div style="display:flex;gap:8px;">
+              <a href="{{ url_for('edit_product', pid=p.id) }}" class="btn btn-ghost" style="padding:5px 12px;font-size:.78rem;">✏️ Edit</a>
+              <form action="{{ url_for('delete_product', pid=p.id) }}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-danger" style="padding:5px 12px;font-size:.78rem;"
+                        onclick="return confirm('Soft-delete this product?')">🗑 Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" style="text-align:center;padding:40px;color:#aaa;">No active products. <a href="{{ url_for('add_product') }}" style="color:#e8b86d;">Add one!</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
-
 {% endblock %}

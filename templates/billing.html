@@ -1,78 +1,86 @@
 {% extends "base.html" %}
+{% block page_title %}Billing{% endblock %}
 {% block content %}
-<section class="max-w-5xl mx-auto">
-  <!-- Title Section -->
-  <div class="flex justify-between items-center mb-8">
-    <h2 class="text-4xl font-bold text-gray-800 flex items-center gap-2">🧾 Billing System</h2>
-    <a href="{{ url_for('home') }}" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-medium px-4 py-2 rounded-lg shadow">➕ Add More Items</a>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <div>
+    <h2 style="font-size:1.5rem;font-weight:700;color:#1a1a2e;">🧾 Billing</h2>
+    <p style="font-size:.82rem;color:#888;margin-top:2px;">Review and confirm your current bill</p>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <a href="/" class="btn btn-ghost">➕ Add More Items</a>
+    {% if bill_items %}
+    <a href="/bill/clear" class="btn btn-danger"
+       onclick="return confirm('Clear all items from cart?')">🗑 Clear Cart</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header" style="background:#1a1a2e;">
+    <h3 style="color:#e8b86d;">Current Bill</h3>
+    <span style="font-size:.8rem;color:rgba(255,255,255,.5);">{{ bill_items|length }} item(s)</span>
   </div>
 
-  <!-- Bill Table Card -->
-  <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
-    <div class="bg-gradient-to-r from-yellow-400 to-yellow-300 p-4">
-      <h3 class="text-lg font-semibold text-gray-900">🛍 Current Bill Details</h3>
+  {% if bill_items %}
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Product</th>
+          <th>Unit Price</th>
+          <th>Qty</th>
+          <th>Subtotal</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bill_items %}
+        <tr>
+          <td style="color:#aaa;">{{ loop.index }}</td>
+          <td style="font-weight:600;color:#1a1a2e;">{{ b.name }}</td>
+          <td>₹{{ "%.2f"|format(b.unit_price) }}</td>
+          <td>
+            <span style="background:#f0ede5;padding:3px 10px;border-radius:6px;font-weight:600;">{{ b.qty }}</span>
+          </td>
+          <td style="color:#16a34a;font-weight:700;">₹{{ "%.2f"|format(b.subtotal) }}</td>
+          <td>
+            <a href="/bill/remove/{{ b.id }}" class="btn btn-danger" style="padding:4px 10px;font-size:.76rem;"
+               onclick="return confirm('Remove from bill?')">✕ Remove</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Total & actions -->
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;background:#faf9f6;flex-wrap:wrap;gap:16px;">
+    <div>
+      <p style="font-size:.8rem;color:#888;margin-bottom:3px;">TOTAL AMOUNT</p>
+      <p style="font-size:1.8rem;font-weight:700;color:#1a1a2e;">₹{{ "%.2f"|format(total_amount) }}</p>
     </div>
-
-    <div class="overflow-x-auto">
-      <table class="min-w-full text-sm text-left text-gray-700">
-        <thead class="bg-gray-100 uppercase text-gray-600 border-b">
-          <tr>
-            <th class="py-3 px-4">Product</th>
-            <th class="py-3 px-4">Quantity</th>
-            <th class="py-3 px-4">Price (₹)</th>
-            <th class="py-3 px-4">Total (₹)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if bill_items %}
-            {% for b in bill_items %}
-              <tr class="border-b hover:bg-gray-50 transition">
-                <td class="py-3 px-4 font-medium">{{ b.name }}</td>
-                <td class="py-3 px-4">{{ b.qty }}</td>
-                <td class="py-3 px-4 text-gray-800">{{ b.unit_price }}</td>
-                <td class="py-3 px-4 text-green-600 font-semibold">{{ b.subtotal }}</td>
-              </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="4" class="p-6 text-center text-gray-500">No items in the cart. Add products from the Home or Inventory page.</td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Total & Actions -->
-    <div class="flex flex-col sm:flex-row justify-between items-center px-6 py-6 bg-gray-50">
-      <div class="text-lg font-semibold text-gray-800 mb-4 sm:mb-0">
-        Total Amount: <span class="text-green-600">₹{{ total_amount }}</span>
-      </div>
-
-      <div class="space-x-3">
-        <button id="generateBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-medium transition">🧾 Generate Bill</button>
-        <button id="confirmBtn" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-medium transition">✅ Confirm & Print</button>
-      </div>
+    <div style="display:flex;gap:10px;">
+      <button id="confirmBtn" class="btn btn-accent" style="padding:12px 24px;font-size:.95rem;">
+        ✅ Confirm &amp; Save Bill
+      </button>
     </div>
   </div>
 
-  <!-- Decorative Section -->
-  <div class="mt-10 flex justify-center">
-    <img src="/static/images/billing_banner.png" class="w-full rounded-lg shadow mb-4" />
-
+  {% else %}
+  <div style="text-align:center;padding:80px 20px;">
+    <div style="font-size:3rem;margin-bottom:14px;">🛒</div>
+    <p style="color:#aaa;font-size:1rem;">Your cart is empty.</p>
+    <a href="/" class="btn btn-primary" style="margin-top:18px;">Browse Products</a>
   </div>
-</section>
+  {% endif %}
+</div>
 
 <script>
-  document.getElementById('generateBtn').addEventListener('click', async () => {
-    alert('Generate bill (preview) — not implemented: will open a preview or download in future.');
-  });
-
-  document.getElementById('confirmBtn').addEventListener('click', async () => {
+  document.getElementById('confirmBtn') && document.getElementById('confirmBtn').addEventListener('click', async () => {
     const items = {{ bill_items|tojson }};
-    if (!items || items.length === 0) {
-      alert('Cart empty.');
-      return;
-    }
+    if (!items || items.length === 0) { alert('Cart is empty.'); return; }
     const res = await fetch('/bill/save', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
@@ -80,10 +88,10 @@
     });
     const j = await res.json();
     if (j.success) {
-      alert('Bill saved: ' + j.bill_id);
+      alert('✅ Bill #' + j.bill_id + ' saved successfully!\nStock has been updated.');
       window.location.href = '/';
     } else {
-      alert('Failed to save bill.');
+      alert('Failed to save bill. ' + (j.message || ''));
     }
   });
 </script>

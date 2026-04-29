@@ -1,60 +1,44 @@
 {% extends "base.html" %}
+{% block page_title %}Delete History{% endblock %}
 {% block content %}
 
-<h2 class="text-3xl font-bold mb-6 flex items-center gap-2">
-    🗑 Deleted Products Log
-</h2>
-
-<div class="bg-white shadow-md rounded-lg overflow-hidden">
-    <table class="min-w-full text-left">
-        <thead class="bg-red-100 text-gray-800 font-semibold">
-            <tr>
-                <th class="px-4 py-3">Product ID</th>
-                <th class="px-4 py-3">Name</th>
-                <th class="px-4 py-3">Category</th>
-                <th class="px-4 py-3">Brand</th>
-                <th class="px-4 py-3">Colour</th>
-                <th class="px-4 py-3">Price</th>
-                <th class="px-4 py-3">Quantity</th>
-                <th class="px-4 py-3">Deleted On</th>
-                <th class="px-4 py-3 text-center">Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for d in deleted %}
-            <tr class="border-b hover:bg-gray-50 transition">
-
-                <td class="px-4 py-3">{{ d.product_id }}</td>
-
-                <td class="px-4 py-3 font-semibold">{{ d.name }}</td>
-
-                <td class="px-4 py-3">{{ d.category_name or '-' }}</td>
-
-                <td class="px-4 py-3">{{ d.brand or '-' }}</td>
-
-                <td class="px-4 py-3">{{ d.colour or '-' }}</td>
-
-                <td class="px-4 py-3">₹{{ d.price }}</td>
-
-                <td class="px-4 py-3">{{ d.quantity }}</td>
-
-                <td class="px-4 py-3">
-                    {{ d.deleted_on }}
-                </td>
-
-                <td class="px-4 py-3 text-center">
-                    <form action="/product/restore/{{ d.product_id }}" method="POST">
-                        <button class="bg-green-600 text-white px-4 py-1 rounded-lg hover:bg-green-700">
-                            Restore
-                        </button>
-                    </form>
-                </td>
-
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div style="margin-bottom:24px;">
+  <h2 style="font-size:1.5rem;font-weight:700;color:#1a1a2e;">🗑️ Delete History</h2>
+  <p style="font-size:.82rem;color:#888;margin-top:2px;">Log of all soft-deleted products</p>
 </div>
 
+<div class="card">
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Product ID</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Qty at Deletion</th>
+          <th>Deleted On</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in deleted %}
+        <tr>
+          <td style="color:#aaa;">#{{ d.product_id }}</td>
+          <td style="font-weight:600;color:#1a1a2e;">{{ d.name }}</td>
+          <td>₹{{ "%.2f"|format(d.price) }}</td>
+          <td><span class="badge badge-red">{{ d.quantity }}</span></td>
+          <td style="font-size:.8rem;color:#888;">{{ d.deleted_on[:19] if d.deleted_on else '—' }}</td>
+          <td>
+            <form action="/product/restore/{{ d.product_id }}" method="POST">
+              <button type="submit" class="btn btn-accent" style="padding:5px 13px;font-size:.78rem;">↩ Restore</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" style="text-align:center;padding:50px;color:#aaa;">No deleted products in log.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}
